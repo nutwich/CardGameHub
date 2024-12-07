@@ -6,20 +6,20 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// สร้างห้องและจำนวนผู้เล่น
+// create room
 let rooms = {
   poker: [],
   blackjack: []
 };
 
-// ตั้งค่าห้องเล่นเกม
+// setting
 const MAX_PLAYERS_POKER = 10;
 const MAX_PLAYERS_BLACKJACK = 4;
 
 io.on('connection', (socket) => {
   console.log('New player connected: ' + socket.id);
 
-  // เข้าร่วมห้อง
+  // join room
   socket.on('joinRoom', (gameType) => {
     if (gameType === 'poker' && rooms.poker.length < MAX_PLAYERS_POKER) {
       rooms.poker.push(socket.id);
@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  // ออกจากห้อง
+  // leave room
   socket.on('leaveRoom', (gameType) => {
     if (gameType === 'poker') {
       rooms.poker = rooms.poker.filter(player => player !== socket.id);
@@ -45,16 +45,16 @@ io.on('connection', (socket) => {
     }
   });
 
-  // เมื่อผู้เล่นออกจากห้อง
+  // disconnect 
   socket.on('disconnect', () => {
     console.log('Player disconnected: ' + socket.id);
-    // ลบผู้เล่นออกจากห้อง
+    // remove player when leave room
     rooms.poker = rooms.poker.filter(player => player !== socket.id);
     rooms.blackjack = rooms.blackjack.filter(player => player !== socket.id);
   });
 });
 
-// เริ่มต้นเซิร์ฟเวอร์
+// run server
 server.listen(3001, () => {
   console.log('Server is running on http://localhost:3001');
 });
